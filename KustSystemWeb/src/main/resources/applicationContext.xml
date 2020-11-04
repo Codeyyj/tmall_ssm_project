@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://www.springframework.org/schema/context
+	http://www.springframework.org/schema/context/spring-context.xsd
+	http://www.springframework.org/schema/aop
+	http://www.springframework.org/schema/aop/spring-aop.xsd
+	http://www.springframework.org/schema/tx
+	http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+<!--    在此处配置上mybatis相关配置内容 这样就可以让spring框架和mybatis进行整合-->
+<!--    先把业务层和持久层的代码进行扫描，因为持久层的接口会关联mapper映射器-->
+   <context:component-scan base-package="zsx.service"></context:component-scan>
+    <context:component-scan base-package="zsx.entity"></context:component-scan>
+<!--配置数据库连接信息-->
+    <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+        <property name="driverClass" value="com.mysql.jdbc.Driver"></property>
+        <property name="jdbcUrl" value="jdbc:mysql:///tmall_ssm?useUnicode=true&amp;characterEncoding=utf8"></property>
+        <property name="user" value="root"></property>
+        <property name="password" value="admin"></property>
+
+    </bean>
+<!--    需要把上述连接信息交给一个工厂模式对象去管理，这样就可以实现对数据库的连接了-->
+    <bean id="SqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"></property>
+        <property name="plugins">
+            <array>
+                <bean class="com.github.pagehelper.PageInterceptor">
+                    <property name="properties">
+                        <props>
+                            <prop key="helperDialect">mysql</prop>
+                            <prop key="reasonable">true</prop>
+                        </props>
+                    </property>
+                </bean>
+            </array>
+        </property>
+    </bean>
+<!--    映射器去指定接口-->
+    <bean id="mapperScannerConfigurer" class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+<!--        value 填入持久层（接口）的包名-->
+        <property name="basePackage" value="zsx.dao"></property>
+    </bean>
+</beans>
